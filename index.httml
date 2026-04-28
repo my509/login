@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập & Đăng Ký | Glassmorphism</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary: #fd79a8;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --glass-blur: blur(20px);
+            --text: #fff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --input-focus: rgba(255, 255, 255, 0.2);
+            --danger: #ff6b6b;
+            --success: #51cf66;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 25%, #2d1b4e 50%, #1a1a3e 75%, #0c0c1d 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+        }
+
+        /* Particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: float linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Orbs decoration */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            z-index: 0;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: var(--secondary);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: #00cec9;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(-50px, -30px) scale(1.05); }
+        }
+
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 900px;
+            min-height: 550px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: var(--glass-shadow), 0 0 60px rgba(108, 92, 231, 0.15);
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Forms wrapper */
+        .forms-wrapper {
+            width: 50%;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .form-section {
+            position: absolute;
+            top: 50px;
+            left: 40px;
+            right: 40px;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        .form-section.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+            position: relative;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .form-section.slide-out-left {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+
+        /* Overlay panel */
+        .overlay-panel {
+            width: 50%;
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.4), rgba(253, 121, 168, 0.4));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .overlay-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Typography */
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .overlay-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .overlay-text {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Input fields */
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group .icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+            transition: color 0.3s;
+            z-index: 2;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .input-group input:focus {
+            background: var(--input-focus);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+        }
+
+        .input-group input:focus ~ .icon,
+        .input-group input:focus + .icon {
+            color: var(--primary-light);
+        }
+
+        .input-group input:focus::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Password toggle */
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.3s;
+            z-index: 2;
+            background: none;
+            border: none;
+        }
+
+        .toggle-password:hover {
+            color: var(--text);
+        }
+
+        /* Options */
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .remember-me input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .remember-me input:checked ~ .checkmark {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkmark i {
+            font-size: 10px;
+            color: white;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s;
+        }
+
+        .remember-me input:checked ~ .checkmark i {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .forgot-link {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .forgot-link:hover {
+            color: var(--text);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(108, 92, 231, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline:active {
+            transform: translateY(0);
+        }
+
+        /* Social login */
+        .social-login {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .social-text::before,
+        .social-text::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .social-text::before { left: 0; }
+        .social-text::after { right: 0; }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            background: rgba(81, 207, 102, 0.9);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .toast-error {
+            background: rgba(255, 107, 107, 0.9);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                max-width: 420px;
+                min-height: auto;
+            }
+
+            .forms-wrapper {
+                width: 100%;
+                padding: 40px 30px;
+                min-height: 480px;
+            }
+
+            .overlay-panel {
+                width: 100%;
+                padding: 35px 30px;
+                border-left: none;
+                border-top: 1px solid var(--glass-border);
+                min-height: 200px;
+            }
+
+            .title { font-size: 1.6rem; }
+            .overlay-title { font-size: 1.4rem; }
+            .overlay-text { font-size: 0.85rem; }
+        }
+
+        @media (max-width: 400px) {
+            .forms-wrapper { padding: 30px 20px; }
+            .form-section { left: 20px; right: 20px; }
+            .overlay-panel { padding: 25px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Orbs decoration -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Toast -->
+    <div class="toast toast-success" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Forms -->
+        <div class="forms-wrapper">
+            <!-- Login Form -->
+            <div class="form-section active" id="loginForm">
+                <h2 class="title">Chào mừng trở lại 👋</h2>
+                <p class="subtitle">Đăng nhập để tiếp tục hành trình của bạn</p>
+
+                <div class="input-group">
+                    <i class="fas fa-envelope icon"></i>
+                    <input type="email" placeholder="Email của bạn" id="loginEmail">
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-lock icon"></i>
+                    <input type="password" placeholder="Mật khẩu" id="loginPassword">
+                    <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <div class="options">
+                    <label class="remember-me">
+                        <input type="checkbox">
+                        <span class="checkmark"><i class="fas fa-check"></i></span>
+                        Ghi nhớ tôi
+                    </label>
+                    <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                </div>
+
+                <button class="btn btn-primary" onclick="handleLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Đăng Nhập
+                </button>
+
+                <div class="social-login">
+                    <p class="social-text">Hoặc đăng nhập với</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-google"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div class="form-section" id="registerForm">
+                <h2 class="title">Tạo tài khoản 🚀</h2>
+                <p class="subtitle">Tham gia cùng chúng tôi ngay hôm nay</p>
+
+                <div class="input-group">
+                    <i class="fas fa-user icon"></i>
+                    <input type="text" placeholder="Họ và tên" id="regName">
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-envelope icon"></i>
+                    <input type="email" placeholder="Email của bạn" id="regEmail">
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-lock icon"></i>
+                    <input type="password" placeholder="Mật khẩu" id="regPassword">
+                    <button type="button" class="toggle-password" onclick="togglePassword('regPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-lock icon"></i>
+                    <input type="password" placeholder="Xác nhận mật khẩu" id="regConfirmPassword">
+                    <button type="button" class="toggle-password" onclick="togglePassword('regConfirmPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <div class="options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="agreeTerms">
+                        <span class="checkmark"><i class="fas fa-check"></i></span>
+                        Tôi đồng ý với <a href="#" class="forgot-link">Điều khoản</a>
+                    </label>
+                </div>
+
+                <button class="btn btn-primary" onclick="handleRegister()">
+                    <i class="fas fa-user-plus"></i> Đăng Ký
+                </button>
+
+                <div class="social-login">
+                    <p class="social-text">Hoặc đăng ký với</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-google"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overlay Panel -->
+        <div class="overlay-panel" id="overlayPanel">
+            <div id="overlayContent">
+                <h2 class="overlay-title">Xin chào, Bạn! ✨</h2>
+                <p class="overlay-text">
+                    Nếu bạn chưa có tài khoản, hãy đăng ký ngay để khám phá những tính năng tuyệt vời.
+                </p>
+                <button class="btn btn-outline" onclick="switchForm('register')" id="switchBtn">
+                    <i class="fas fa-user-plus"></i> Đăng Ký
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Particles generation
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                const size = Math.random() * 4 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+                particle.style.animationDelay = (Math.random() * 10) + 's';
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Form switching
+        let currentForm = 'login';
+
+        function switchForm(form) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const overlayContent = document.getElementById('overlayContent');
+            const overlayPanel = document.getElementById('overlayPanel');
+
+            if (form === 'register') {
+                // Switch to register
+                loginForm.classList.remove('active');
+                loginForm.classList.add('slide-out-left');
+
+                setTimeout(() => {
+                    loginForm.classList.remove('slide-out-left');
+                    registerForm.classList.add('active');
+                }, 300);
+
+                overlayContent.innerHTML = `
+                    <h2 class="overlay-title">Đã có tài khoản? 👋</h2>
+                    <p class="overlay-text">
+                        Đăng nhập để tiếp tục kết nối với chúng tôi và trải nghiệm dịch vụ.
+                    </p>
+                    <button class="btn btn-outline" onclick="switchForm('login')">
+                        <i class="fas fa-sign-in-alt"></i> Đăng Nhập
+                    </button>
+                `;
+
+                currentForm = 'register';
+
+            } else {
+                // Switch to login
+                registerForm.classList.remove('active');
+                registerForm.classList.add('slide-out-left');
+
+                setTimeout(() => {
+                    registerForm.classList.remove('slide-out-left');
+                    loginForm.classList.add('active');
+                }, 300);
+
+                overlayContent.innerHTML = `
+                    <h2 class="overlay-title">Xin chào, Bạn! ✨</h2>
+                    <p class="overlay-text">
+                        Nếu bạn chưa có tài khoản, hãy đăng ký ngay để khám phá những tính năng tuyệt vời.
+                    </p>
+                    <button class="btn btn-outline" onclick="switchForm('register')">
+                        <i class="fas fa-user-plus"></i> Đăng Ký
+                    </button>
+                `;
+
+                currentForm = 'login';
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Toast function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toast.className = 'toast';
+            toast.classList.add('toast-' + type);
+            toastMessage.textContent = message;
+
+            // Update icon
+            const icon = toast.querySelector('i');
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Handle Login
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            // Validation
+            if (!email) {
+                showToast('Vui lòng nhập email!', 'error');
+                shakeElement(document.getElementById('loginEmail'));
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showToast('Email không hợp lệ!', 'error');
+                shakeElement(document.getElementById('loginEmail'));
+                return;
+            }
+
+            if (!password) {
+                showToast('Vui lòng nhập mật khẩu!', 'error');
+                shakeElement(document.getElementById('loginPassword'));
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+                shakeElement(document.getElementById('loginPassword'));
+                return;
+            }
+
+            // Simulate login
+            const btn = document.querySelector('#loginForm .btn-primary');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng nhập...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                showToast('Đăng nhập thành công! 🎉', 'success');
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng Nhập';
+                btn.disabled = false;
+
+                // Clear form
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+            }, 1500);
+        }
+
+        // Handle Register
+        function handleRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+
+            // Validation
+            if (!name) {
+                showToast('Vui lòng nhập họ tên!', 'error');
+                shakeElement(document.getElementById('regName'));
+                return;
+            }
+
+            if (!email) {
+                showToast('Vui lòng nhập email!', 'error');
+                shakeElement(document.getElementById('regEmail'));
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showToast('Email không hợp lệ!', 'error');
+                shakeElement(document.getElementById('regEmail'));
+                return;
+            }
+
+            if (!password) {
+                showToast('Vui lòng nhập mật khẩu!', 'error');
+                shakeElement(document.getElementById('regPassword'));
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+                shakeElement(document.getElementById('regPassword'));
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showToast('Mật khẩu xác nhận không khớp!', 'error');
+                shakeElement(document.getElementById('regConfirmPassword'));
+                return;
+            }
+
+            if (!agreeTerms) {
+                showToast('Vui lòng đồng ý với điều khoản!', 'error');
+                return;
+            }
+
+            // Simulate register
+            const btn = document.querySelector('#registerForm .btn-primary');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng ký...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                showToast('Đăng ký thành công! 🎉', 'success');
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Đăng Ký';
+                btn.disabled = false;
+
+                // Clear form
+                document.getElementById('regName').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regConfirmPassword').value = '';
+                document.getElementById('agreeTerms').checked = false;
+
+                // Switch to login
+                setTimeout(() => switchForm('login'), 500);
+            }, 1500);
+        }
+
+        // Email validation
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Shake animation
+        function shakeElement(element) {
+            element.style.animation = 'none';
+            element.offsetHeight; // Trigger reflow
+            element.style.animation = 'shake 0.5s ease';
+            element.style.borderColor = '#ff6b6b';
+            element.style.boxShadow = '0 0 0 4px rgba(255, 107, 107, 0.2)';
+
+            setTimeout(() => {
+                element.style.animation = '';
+                element.style.borderColor = '';
+                element.style.boxShadow = '';
+            }, 500);
+        }
+
+        // Add shake keyframes
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                20% { transform: translateX(-8px); }
+                40% { transform: translateX(8px); }
+                60% { transform: translateX(-5px); }
+                80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(shakeStyle);
+
+        // Enter key to submit
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (currentForm === 'login') {
+                    handleLogin();
+                } else {
+                    handleRegister();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
